@@ -24,9 +24,14 @@ class CImage24(object):
 			tmp=color[i]+self.buffer[x*3+y*self.width*3+i]
 			if tmp > 255: tmp = 255
 			self.buffer[x*3+y*self.width*3+i]=tmp
-			
+		
+	def blendImage(self, img):
+		for y in range(self.height):
+			for x in range(self.width):
+				self.setPixelAdd(x,y,img.getPixel(x,y))
+
 	def getPILImage(self):
-		 return Image.frombuffer('RGB',(self.width,self.height),bytes(self.buffer),"raw",'RGB',0,1)
+		return Image.frombuffer('RGB',(self.width,self.height),bytes(self.buffer),"raw",'RGB',0,1)
 	
 	def loadPILImage(self, fname):
 		img=Image.open(fname)

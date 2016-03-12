@@ -8,7 +8,7 @@ class CDistribution(object):
 		self.img=CImage24(sz,sz)
 	
 	def _Simple(self, x, y):
-		return int(255 / ( 1.0+ math.sqrt(x*x+y*y)))
+		return int(255 / ( 1.0+ 0.0325*math.sqrt(x*x+y*y)))
 	
 	def render(self, func=_Simple):
 		for j in range(self.size):
@@ -58,10 +58,8 @@ SIZE=2**7
 for i in range(1):
 	sl=CSpeedLine(SIZE,i*0.5+1)
 	sl.render(sl._OverSampling)
-	imgOut = sl.img.getPILImage()
-	imgOut.save("../_saved_line_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
 	
-	#dis=CDistribution(SIZE)
-	#dis.render(dis._Simple)
-	#imgOut=dis.img.getPILImage()
-	#imgOut.save("../_saved_dis_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
+	dis=CDistribution(SIZE)
+	dis.render(dis._Simple)
+	dis.img.blendImage(sl.img)
+	dis.img.save("../_saved_dis_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
