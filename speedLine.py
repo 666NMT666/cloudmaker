@@ -56,12 +56,12 @@ class CSpeedLine(object):
 
 SIZE=2**7
 for i in range(1):
-	#sl=CSpeedLine(SIZE,i*0.5+1)
-	#sl.render(sl._OverSampling)
-	#imgOut = sl.img.getPILImage()
-	#imgOut.save("_saved_line_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
+	sl=CSpeedLine(SIZE,i*0.5+1)
+	sl.render(sl._OverSampling)
+	imgOut = sl.img.getPILImage()
+	imgOut.save("../_saved_line_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
 	
-	dis=CDistribution(SIZE)
-	dis.render(dis._Simple)
-	imgOut=dis.img.getPILImage()
-	imgOut.save("_saved_dis_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
+	#dis=CDistribution(SIZE)
+	#dis.render(dis._Simple)
+	#imgOut=dis.img.getPILImage()
+	#imgOut.save("../_saved_dis_nonOS_"+str(SIZE)+"_"+str(i+1)+".bmp")
