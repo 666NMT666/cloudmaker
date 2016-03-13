@@ -117,12 +117,12 @@ class CSpeedLine(CImageMaker):
 
 
 if __name__ == '__main__':
-	SIZE=2**7
-	for i in range(8):
+	SIZE=2**8
+	for i in range(16):
 		sl=CSpeedLine(SIZE,1)
 		sl.render(sl._OverSampling)
 		dis=CDistribution(SIZE, SIZE)
-		dis.render(dis._Simple, 0.01115+0.01*random.random())
+		dis.render(dis._Simple, 0.005+0.01*random.random())
 		dis.brend(sl)
 		dis.img.reverse()
 		dis.save("../_saved_dis_speedline_nonOS_MUL"+str(SIZE)+"_"+str(i+1)+".bmp")
