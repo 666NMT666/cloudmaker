@@ -9,7 +9,17 @@ class CImage24(object):
 			self.buffer=[0 for i in range(width*height*3)]
 		else:
 			self.loadPILImage(fname)
-		
+
+	def crop(self,l,u,r,b):
+		img=self.getPILImage().crop((l,u,r,b))
+		(self.width,self.height)=img.size
+		self.buffer=bytearray(img.convert('RGB').tostring())
+
+	def resize(self,w,h):
+		self.img.resize(w,h)
+		(self.width,self.height)=img.size
+		self.buffer=bytearray(img.convert('RGB').tostring())
+	
 	def getPixel(self,x,y):
 		if x>=self.width or y>=self.height or y<0 or x<0: return (0,0,0)
 		return (self.buffer[x*3+y*self.width*3+0],self.buffer[x*3+y*self.width*3+1],self.buffer[x*3+y*self.width*3+2])
@@ -26,18 +36,26 @@ class CImage24(object):
 			if tmp > 255: tmp = 255
 			self.buffer[x*3+y*self.width*3+i]=tmp
 
-	def setPixelMul(self,x,y,color):
+	def setPixelOverlay(self,x,y,color):
 		if x>=self.width or y>=self.height or y<0 or x<0: return
 		for i in range(3):
 			tmp=(color[i]*self.buffer[x*3+y*self.width*3+i])//256
 			self.buffer[x*3+y*self.width*3+i]=tmp
 
-	def brend(self, img):
+	def setPixelOverlay(self,x,y,color):
+		if x>=self.width or y>=self.height or y<0 or x<0: return
+		for i in range(3):
+			dest = self.buffer[x*3+y*self.width*3+i]
+			tmp = color[i]//256 * (color[i]+2*dest/255*(255-color[i]))
+			if tmp > 255 : tmp = 255
+			self.buffer[x*3+y*self.width*3+i]=tmp
+
+	def brend(self, img, func=setPixelAdd):
 		w = min(self.width,img.width)
 		h = min(self.height,img.height)
 		for y in range(h):
 			for x in range(w):
-				self.setPixelAdd(x,y,img.getPixel(x,y))
+				func(self,x,y,img.getPixel(x,y))
 
 	def reverse(self):
 		for y in range(self.height):
@@ -85,6 +103,24 @@ class CDistribution(CImageMaker):
 				c = func(self.width//2 - i,self.height//2 - j, const)
 				self.img.setPixelAdd( i, j, (c,c,c))
 
+class CSinDistribution(CImageMaker):
+	def __init__(self,w,h,t):
+		self.width=w
+		self.height=h
+		self.interval=t
+		self.img=CImage24(w,h)
+	
+	def _Simple(self, x, y, const, phase):
+		r = math.sqrt(x*x+y*y)
+		cos = 1.0 + math.cos(r / self.interval +2*math.pi/360.0*phase)
+		return int(255 / ( 1.0+ const*cos*math.sqrt(x*x+y*y)))
+
+	def render(self, func, const, phase):
+		for j in range(self.height):
+			for i in range(self.width):
+				c = func(self.width//2 - i,self.height//2 - j, const, phase)
+				self.img.setPixelAdd( i, j, (c,c,c))
+
 class CSpeedLine(CImageMaker):
 	def __init__(self,sz,mul=1):
 		self.size=sz
@@ -118,11 +154,12 @@ class CSpeedLine(CImageMaker):
 
 if __name__ == '__main__':
 	SIZE=2**8
-	for i in range(16):
+	for i in range(2):
 		sl=CSpeedLine(SIZE,1)
 		sl.render(sl._OverSampling)
-		dis=CDistribution(SIZE, SIZE)
-		dis.render(dis._Simple, 0.005+0.01*random.random())
+		dis=CSinDistribution(SIZE, SIZE, 20)
+		#dis.render(dis._Simple, 0.005+0.005*random.random())
+		dis.render(dis._Simple, 0.005+0.005*random.random(), 36*i)
 		dis.brend(sl)
 		dis.img.reverse()
-		dis.save("../_saved_dis_speedline_nonOS_MUL"+str(SIZE)+"_"+str(i+1)+".bmp")
+		dis.save("../saved_dis_speedline_Sin"+str(SIZE)+"_"+str(i+1)+".bmp")
