@@ -16,7 +16,7 @@ class CImage24(object):
 		self.buffer=bytearray(img.convert('RGB').tostring())
 
 	def resize(self,w,h):
-		self.img.resize(w,h)
+		img=self.getPILImage().resize(w,h)
 		(self.width,self.height)=img.size
 		self.buffer=bytearray(img.convert('RGB').tostring())
 	
@@ -36,7 +36,7 @@ class CImage24(object):
 			if tmp > 255: tmp = 255
 			self.buffer[x*3+y*self.width*3+i]=tmp
 
-	def setPixelOverlay(self,x,y,color):
+	def setPixelMul(self,x,y,color):
 		if x>=self.width or y>=self.height or y<0 or x<0: return
 		for i in range(3):
 			tmp=(color[i]*self.buffer[x*3+y*self.width*3+i])//256
@@ -46,7 +46,7 @@ class CImage24(object):
 		if x>=self.width or y>=self.height or y<0 or x<0: return
 		for i in range(3):
 			dest = self.buffer[x*3+y*self.width*3+i]
-			tmp = color[i]//256 * (color[i]+2*dest/255*(255-color[i]))
+			tmp = int (dest/256.0 * (dest+2*color[i]/255.0*(255.0-dest)))
 			if tmp > 255 : tmp = 255
 			self.buffer[x*3+y*self.width*3+i]=tmp
 
@@ -55,7 +55,7 @@ class CImage24(object):
 		h = min(self.height,img.height)
 		for y in range(h):
 			for x in range(w):
-				func(self,x,y,img.getPixel(x,y))
+				func(x,y,img.getPixel(x,y))
 
 	def reverse(self):
 		for y in range(self.height):
@@ -154,12 +154,16 @@ class CSpeedLine(CImageMaker):
 
 if __name__ == '__main__':
 	SIZE=2**8
-	for i in range(2):
-		sl=CSpeedLine(SIZE,1)
-		sl.render(sl._OverSampling)
-		dis=CSinDistribution(SIZE, SIZE, 20)
-		#dis.render(dis._Simple, 0.005+0.005*random.random())
-		dis.render(dis._Simple, 0.005+0.005*random.random(), 36*i)
-		dis.brend(sl)
-		dis.img.reverse()
-		dis.save("../saved_dis_speedline_Sin"+str(SIZE)+"_"+str(i+1)+".bmp")
+	for i in range(10):
+		img1=CImage24(fname="../effect-backlight4.bmp")
+		img2=CImage24(fname="../_saved_dis_speedline_Sin256_"+str(i+1)+".bmp")
+		img1.brend(img2, img1.setPixelMul)
+		img1.save("../saved_mul_"+str(i+1)+".bmp")
+		#sl=CSpeedLine(SIZE,1)
+		#sl.render(sl._OverSampling)
+		#dis=CSinDistribution(SIZE, SIZE, 20)
+		##dis.render(dis._Simple, 0.005+0.005*random.random())
+		#dis.render(dis._Simple, 0.005+0.005*random.random(), 36*i)
+		#dis.brend(sl)
+		#dis.img.reverse()
+		#dis.save("../saved_dis_speedline_Sin"+str(SIZE)+"_"+str(i+1)+".bmp")
