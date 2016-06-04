@@ -74,6 +74,8 @@ class CImage24(object):
 	def save(self,fname):
 		self.getPILImage().save(fname)
 
+	def test(self):
+		return 1;
 
 class CImageMaker(object):
 	def setImage(self,img):
